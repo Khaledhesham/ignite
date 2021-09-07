@@ -5,6 +5,7 @@ namespace App\Http\Controllers\REST;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Services\AuthenticateService;
+use App\Http\Services\GenerateResponseService;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
@@ -12,10 +13,14 @@ use Illuminate\Support\Facades\Response;
 class AuthController extends Controller
 {
     protected $authenticateService;
+    protected $generateResponseService;
 
-    public function __construct(AuthenticateService $authenticateService)
-    {
+    public function __construct(
+        AuthenticateService $authenticateService,
+        GenerateResponseService $generateResponseService
+    ) {
         $this->authenticateService = $authenticateService;
+        $this->generateResponseService = $generateResponseService;
     }
     /**
      * Login User via email and password
@@ -28,13 +33,17 @@ class AuthController extends Controller
         $result = $this->authenticateService->execute($request->validated());
 
         if ($result["success"]) {
-            $result["body"] = $result;
-            $result["message"] = "User Logged In Successfully";
-            return response()->json($result, 200);
+            return $this->generateResponseService->execute(
+                "User Logged In Successfully",
+                200,
+                $result
+            );
         }
 
-        return response()->json([
-            "message" => "Unauthorized"
-        ], 401);
+        return $this->generateResponseService->execute(
+            "Unauthorized",
+            401,
+            []
+        );
     }
 }

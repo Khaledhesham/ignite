@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\REST\AuthController;
+use App\Http\Controllers\REST\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,3 +23,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/login', [
     AuthController::class, "login"
 ]);
+
+Route::post('/register', [
+    UsersController::class, "create"
+]);
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/me', [
+        UsersController::class, "currentUser"
+    ]);
+});
